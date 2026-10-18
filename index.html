@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PédaClic</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<meta name="theme-color" content="#12372F">
+<style>
+:root{--board:#12372F;--board2:#1B4A40;--chalk:#F2F5F0;--yellow:#F4C542;--bg:#EDF1EE;--card:#fff;--ink:#17231F;--mute:#5B6B65;--line:#D5DDD8;--ok:#1E7A4D;--ko:#B8433B}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;padding-top:env(safe-area-inset-top,0px)}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2}
+header{background:var(--board);color:var(--chalk);padding:14px 18px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:5}
+header b{font-family:Georgia,serif;font-size:1.3rem}
+header span{color:var(--yellow)}
+main{padding:16px 16px 96px;max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;display:flex;background:var(--board);padding-bottom:env(safe-area-inset-bottom,0px);z-index:6}
+nav button{flex:1;background:none;border:0;color:#B9C9C2;padding:11px 2px 9px;font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:2px;border-top:3px solid transparent}
+nav button .i{font-size:1.25rem}
+nav button.on{color:var(--chalk);border-top-color:var(--yellow)}
+button:focus-visible,summary:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.board{background:var(--board);color:var(--chalk);border-radius:14px;padding:20px;border:5px solid #7A5A3A}
+.board h2{font-size:1.5rem;margin-bottom:6px}
+.board p{color:#D3DFD9}
+.bar{height:10px;background:#0B2620;border-radius:6px;margin:14px 0 6px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--yellow)}
+.btn{display:inline-block;background:var(--yellow);color:#16240F;border:0;border-radius:10px;padding:12px 18px;font-weight:700;font-size:1rem;margin-top:12px}
+.btn.alt{background:#fff;border:2px solid var(--board);color:var(--board)}
+.sec{margin:22px 0 8px;font-size:1.15rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+.row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px;font-size:1rem;color:var(--ink)}
+.row .t{flex:1}.row small{display:block;color:var(--mute)}
+.tag{font-size:.8rem;border-radius:20px;padding:2px 10px;background:#E4ECE8;color:var(--board)}
+.tag.ok{background:#D5EEDF;color:var(--ok)}
+.les p,.les li{margin-bottom:10px;font-size:1.02rem}
+.les ul{padding-left:20px}
+.q{font-family:Georgia,serif;font-size:1.2rem;margin:10px 0 14px}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:2px solid var(--line);border-radius:10px;padding:13px;margin-bottom:9px;font-size:1rem;color:var(--ink)}
+.opt.good{border-color:var(--ok);background:#E3F4EA}
+.opt.bad{border-color:var(--ko);background:#F8E4E2}
+.fb{margin:8px 0;font-weight:600}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+summary{padding:14px;font-weight:700;cursor:pointer;font-family:Georgia,serif;font-size:1.05rem}
+details ul{padding:0 16px 14px 36px}details li{margin-bottom:6px}
+label{display:block;font-weight:600;margin:10px 0 4px;font-size:.92rem}
+input,textarea{width:100%;border:2px solid var(--line);border-radius:10px;padding:11px;font:inherit;background:#fff}
+.stats{display:flex;gap:10px}.stats div{flex:1;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center}
+.stats b{display:block;font-family:Georgia,serif;font-size:1.8rem;color:var(--board)}
+.del{background:none;border:0;color:var(--ko);font-weight:600;padding:6px 0}
+.back{background:none;border:0;color:var(--board);font-weight:700;padding:4px 0 12px;font-size:1rem}
+.note{color:var(--mute);font-size:.9rem;margin-top:14px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><b>Péda<span>Clic</span></b></header>
+<main id="app"></main>
+<nav id="nav"></nav>
+<script>
+const CATS=["Pédagogie générale","Pédagogie appliquée","Psychopédagogie"];
+const LESSONS=[
+{id:"obj",c:0,t:"Les objectifs pédagogiques",m:6,p:[
+"Un objectif pédagogique dit ce que l’élève sera capable de faire à la fin de la leçon. Il ne décrit pas ce que l’enseignant va faire.",
+"On l’écrit avec un verbe d’action observable : identifier, calculer, écrire, citer. On évite « comprendre » ou « savoir », qu’on ne peut pas observer.",
+"Un bon objectif précise trois choses : la tâche, les conditions et le critère de réussite. Exemple : « À partir d’un texte de cinq lignes, l’élève relève au moins quatre verbes conjugués. »",
+"L’objectif général est la grande intention d’un cours. Les objectifs spécifiques en sont les étapes mesurables."],
+q:[["Quel verbe convient pour un objectif pédagogique ?",["Comprendre","Calculer","Apprécier","Savoir"],1],
+["Un objectif pédagogique décrit…",["ce que l’enseignant fera","ce que l’élève sera capable de faire","le contenu du manuel"],1],
+["Le critère de réussite indique…",["le niveau de réussite attendu","la durée de la récréation","le nom de l’encadreur"],0]]},
+{id:"eval",c:0,t:"Évaluer pour mieux enseigner",m:6,p:[
+"On évalue pour savoir où en sont les élèves, pas seulement pour les noter.",
+"L’évaluation diagnostique se fait avant d’enseigner : elle révèle ce que les élèves savent déjà.",
+"L’évaluation formative se fait pendant l’apprentissage : elle permet d’ajuster l’enseignement et d’aider chaque élève. Elle ne sert pas à classer.",
+"L’évaluation sommative se fait à la fin d’une période : elle fait le bilan et sert à décider (composition, examen)."],
+q:[["Quelle évaluation se fait au début pour connaître les acquis ?",["Diagnostique","Sommative","Certificative"],0],
+["L’évaluation formative sert à…",["classer les élèves","ajuster l’enseignement en cours de route","décider du passage en classe supérieure"],1],
+["La composition trimestrielle est une évaluation…",["diagnostique","formative","sommative"],2]]},
+{id:"deroul",c:1,t:"Le déroulement d’une leçon",m:7,p:[
+"Une leçon réussie suit des étapes claires. Les noms peuvent varier selon la discipline et le guide en vigueur, mais la logique reste la même.",
+"1. Rappel et mise en situation : on relie la leçon à ce que les élèves savent déjà.",
+"2. Présentation de la situation ou du problème à résoudre.",
+"3. Recherche : les élèves cherchent seuls, puis en groupe. L’enseignant circule et guide sans donner la réponse.",
+"4. Mise en commun et synthèse : on dégage l’essentiel à retenir, que tous écrivent.",
+"5. Application et évaluation : exercices courts pour vérifier que l’objectif est atteint."],
+q:[["Que fait-on au début de la leçon ?",["Un rappel et une mise en situation","Une évaluation finale","La synthèse"],0],
+["Pendant la phase de recherche, qui cherche ?",["Seulement l’enseignant","Les élèves","Le directeur"],1],
+["La mise en commun sert à…",["dégager l’essentiel retenu par tous","donner les punitions","finir plus tôt"],0]]},
+{id:"effectif",c:1,t:"Gérer une classe à gros effectif",m:6,p:[
+"Avec 60 élèves ou plus, l’organisation compte plus que la voix.",
+"Posez peu de règles, claires et affichées. Installez des rituels : entrée en classe, distribution du matériel, passage au tableau.",
+"Utilisez les ardoises : à une question, tous écrivent et lèvent leur ardoise en même temps. Vous voyez toute la classe répondre.",
+"Formez des groupes avec des rôles (chef de groupe, rapporteur, gardien du temps). Désignez des élèves tuteurs pour aider les camarades en difficulté.",
+"Circulez entre les rangs : un regard et un pas près d’un élève calment mieux qu’un cri."],
+q:[["Les ardoises permettent…",["que tous répondent en même temps","de punir plus vite","d’économiser les cahiers"],0],
+["Les règles de classe doivent être…",["nombreuses et sévères","peu nombreuses et claires","changées chaque jour"],1],
+["Dans un travail de groupe, on…",["donne un rôle à chacun","laisse faire","interdit de parler"],0]]},
+{id:"piaget",c:2,t:"Les stades de Piaget",m:6,p:[
+"Jean Piaget a montré que l’enfant ne pense pas comme l’adulte : sa façon de raisonner évolue par stades.",
+"Sensori-moteur (0 à 2 ans) : l’enfant apprend par ses sens et ses gestes.",
+"Préopératoire (2 à 7 ans) : il parle et imagine, mais raisonne encore par intuition.",
+"Opératoire concret (7 à 11 ans environ) : il raisonne logiquement, à condition de s’appuyer sur du concret.",
+"Opératoire formel (dès 11-12 ans) : il peut raisonner sur des idées abstraites.",
+"À l’école primaire, on part donc du concret : objets, dessins, situations de la vie, avant les règles abstraites."],
+q:[["Un enfant de 8 ans est au stade…",["sensori-moteur","opératoire concret","opératoire formel"],1],
+["Pour cet enfant, la bonne méthode est de…",["partir d’objets et de situations concrètes","réciter la règle d’abord","donner seulement des textes longs"],0],
+["Qui a décrit ces stades ?",["Piaget","Pasteur","Montessori"],0]]},
+{id:"motiv",c:2,t:"La motivation de l’élève",m:5,p:[
+"Un élève s’engage quand il se sent capable, comprend à quoi sert ce qu’il apprend, et se sent respecté.",
+"L’erreur est une information : elle montre où l’élève bloque. Corrigez-la sans moquerie et faites chercher pourquoi elle est apparue.",
+"Un bon encouragement est précis et porte sur l’effort ou la méthode : « Tu as bien vérifié ton calcul », plutôt que « Tu es intelligent ».",
+"Donnez des défis à la portée de l’élève : ni trop faciles, ni impossibles."],
+q:[["L’erreur est…",["une faute à punir","une information pour aider l’élève","une preuve de paresse"],1],
+["Un bon encouragement est…",["précis et centré sur l’effort","vague et rare","réservé aux meilleurs"],0],
+["L’élève est motivé quand il…",["voit l’utilité de ce qu’il apprend","a peur de la punition","copie sans comprendre"],0]]}
+];
+const FICHES=[
+["Préparer sa fiche de leçon",["Classe, discipline, titre, durée","Objectif(s) formulé(s) avec un verbe d’action","Matériel et supports nécessaires","Déroulement avec le temps prévu pour chaque étape","Questions et exercices d’évaluation","Trace écrite (ce que les élèves copient)"]],
+["Observer une classe (visite)",["Climat : accueil, respect, discipline positive","Consignes claires et reformulées","Participation : combien d’élèves interviennent ?","Gestion du temps et des étapes","Qualité de la trace écrite et du tableau","Retour donné aux élèves sur leurs erreurs"]],
+["Conduire l’entretien après la visite",["Commencer par les points positifs observés","Laisser l’enseignant s’exprimer d’abord","Retenir un ou deux points à améliorer, pas dix","Proposer des pistes concrètes","Fixer ensemble une action et une date de suivi"]],
+["Évaluation formative en 5 minutes",["Poser 3 questions courtes sur l’objectif du jour","Faire répondre sur ardoise","Compter les bonnes réponses d’un coup d’œil","Reprendre tout de suite ce qui n’est pas acquis"]]
+];
+let S={tab:"home",les:null,step:"read",qi:0,score:0,pick:null};
+let D={done:{},visits:[]};
+try{const x=localStorage.getItem("pedaclic");if(x)D=JSON.parse(x)}catch(e){}
+function save(){try{localStorage.setItem("pedaclic",JSON.stringify(D))}catch(e){}}
+function esc(s){const d=document.createElement("div");d.textContent=s;return d.innerHTML}
+const $=id=>document.getElementById(id);
+const TABS=[["home","🏠","Accueil"],["lessons","📖","Leçons"],["fiches","📋","Fiches"],["suivi","📊","Suivi"]];
+function nav(){$("nav").innerHTML=TABS.map(t=>`<button class="${S.tab===t[0]?"on":""}" onclick="go('${t[0]}')"><span class="i">${t[1]}</span>${t[2]}</button>`).join("")}
+function go(t){S.tab=t;S.les=null;S.step="read";render();scrollTo(0,0)}
+function validated(){return LESSONS.filter(l=>(D.done[l.id]||0)>=2).length}
+function render(){nav();const a=$("app");
+ if(S.tab==="home")a.innerHTML=home();
+ else if(S.tab==="lessons")a.innerHTML=S.les?lesson():list();
+ else if(S.tab==="fiches")a.innerHTML=fiches();
+ else a.innerHTML=suivi();}
+function home(){const v=validated(),n=LESSONS.length,next=LESSONS.find(l=>(D.done[l.id]||0)<2)||LESSONS[0];
+ return `<div class="board"><h2>Bonjour et bienvenue</h2><p>Se former à la pédagogie, un petit pas à la fois, sans connexion.</p>
+ <div class="bar"><i style="width:${v/n*100}%"></i></div><p>${v} leçon${v>1?"s":""} validée${v>1?"s":""} sur ${n}</p>
+ <button class="btn" onclick="openLes('${next.id}')">${v?"Continuer":"Commencer"} : ${esc(next.t)}</button></div>
+ <h3 class="sec">Trois parcours</h3>`+CATS.map((c,i)=>{const ls=LESSONS.filter(l=>l.c===i),d=ls.filter(l=>(D.done[l.id]||0)>=2).length;
+ return `<button class="row" onclick="go('lessons')"><span class="t"><b>${c}</b><small>${ls.length} leçons · ${d} validée${d>1?"s":""}</small></span></button>`}).join("")+
+ `<p class="note">Une leçon est validée quand vous répondez juste à au moins 2 questions sur 3. Vos résultats restent sur ce téléphone.</p>`}
+function list(){return CATS.map((c,i)=>`<h3 class="sec">${c}</h3>`+LESSONS.filter(l=>l.c===i).map(l=>{const s=D.done[l.id];
+ return `<button class="row" onclick="openLes('${l.id}')"><span class="t"><b>${esc(l.t)}</b><small>${l.m} min de lecture + quiz</small></span>${s!==undefined?`<span class="tag ${s>=2?"ok":""}">${s}/3</span>`:""}</button>`}).join("")).join("")}
+function openLes(id){S.tab="lessons";S.les=LESSONS.find(l=>l.id===id);S.step="read";S.qi=0;S.score=0;S.pick=null;render();scrollTo(0,0)}
+function lesson(){const l=S.les;
+ if(S.step==="read")return `<button class="back" onclick="S.les=null;render()">‹ Retour aux leçons</button><div class="les"><h2 style="margin-bottom:6px">${esc(l.t)}</h2><p class="tag" style="display:inline-block;margin-bottom:14px">${CATS[l.c]}</p>${l.p.map(x=>`<p>${esc(x)}</p>`).join("")}<button class="btn" onclick="S.step='quiz';render();scrollTo(0,0)">Passer au quiz</button></div>`;
+ if(S.step==="quiz"){const q=l.q[S.qi],a=S.pick!==null;
+  return `<button class="back" onclick="S.step='read';S.qi=0;S.score=0;S.pick=null;render()">‹ Revoir la leçon</button><p class="note">Question ${S.qi+1} sur ${l.q.length}</p><div class="q">${esc(q[0])}</div>`+
+  q[1].map((o,i)=>`<button class="opt ${a?(i===q[2]?"good":(i===S.pick?"bad":"")):""}" ${a?"disabled":""} onclick="answer(${i})">${esc(o)}</button>`).join("")+
+  (a?`<p class="fb">${S.pick===q[2]?"Bonne réponse !":"Pas tout à fait. La bonne réponse est en vert."}</p><button class="btn" onclick="nextQ()">${S.qi+1<l.q.length?"Question suivante":"Voir mon résultat"}</button>`:"");}
+ const ok=S.score>=2;
+ return `<div class="board"><h2>${S.score} sur ${l.q.length}</h2><p>${ok?"Leçon validée. Bravo !":"Relisez la leçon, puis réessayez. Vous pouvez y arriver."}</p></div>
+ <button class="btn" onclick="openLes('${l.id}')">${ok?"Refaire cette leçon":"Relire et réessayer"}</button> <button class="btn alt" onclick="S.les=null;render()">Autres leçons</button>`}
+function answer(i){if(S.pick!==null)return;S.pick=i;if(i===S.les.q[S.qi][2])S.score++;render()}
+function nextQ(){S.pick=null;if(S.qi+1<S.les.q.length){S.qi++}else{S.step="end";D.done[S.les.id]=Math.max(D.done[S.les.id]||0,S.score);save()}render();scrollTo(0,0)}
+function fiches(){return `<h2 style="margin-bottom:10px">Fiches pratiques</h2>`+FICHES.map((f,i)=>`<details ${i===0?"open":""}><summary>${esc(f[0])}</summary><ul>${f[1].map(x=>`<li>${esc(x)}</li>`).join("")}</ul></details>`).join("")}
+function suivi(){const vs=D.visits,ens=new Set(vs.map(v=>v.n.toLowerCase())).size;
+ return `<h2 style="margin-bottom:10px">Suivi de la CEB</h2><div class="stats"><div><b>${vs.length}</b>visite${vs.length>1?"s":""}</div><div><b>${ens}</b>enseignant${ens>1?"s":""}</div><div><b>${validated()}/${LESSONS.length}</b>leçons</div></div>
+ <h3 class="sec">Noter une visite de classe</h3><div class="card">
+ <label for="vE">École</label><input id="vE"><label for="vN">Enseignant</label><input id="vN"><label for="vD">Date</label><input id="vD" type="date">
+ <label for="vO">Observation</label><textarea id="vO" rows="3"></textarea><button class="btn" onclick="addV()">Enregistrer la visite</button></div>
+ <h3 class="sec">Visites enregistrées</h3>`+(vs.length?vs.map((v,i)=>`<div class="card"><b>${esc(v.n)}</b> · ${esc(v.e)}<br><small>${esc(v.d)}</small><p>${esc(v.o)}</p><button class="del" onclick="delV(${i})">Supprimer</button></div>`).join(""):`<p class="note">Aucune visite pour l’instant. Remplissez le formulaire ci-dessus pour en ajouter une.</p>`)}
+function addV(){const n=$("vN").value.trim(),e=$("vE").value.trim();if(!n||!e){alert("Indiquez l’école et le nom de l’enseignant.");return}
+ D.visits.unshift({e:e,n:n,d:$("vD").value||new Date().toISOString().slice(0,10),o:$("vO").value.trim()});save();render()}
+function delV(i){if(confirm("Supprimer cette visite ?")){D.visits.splice(i,1);save();render()}}
+render();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+</script>
+</body>
+</html>
